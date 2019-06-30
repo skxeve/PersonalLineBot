@@ -1,0 +1,13 @@
+version: '3'
+services:
+    py3s:
+        build: .
+        container_name: 'plinebot'
+        working_dir: '/go/src/github.com/skxeve/PersonalLineBot'
+        tty: true
+        volumes:
+            - .:/go/src/github.com/skxeve/PersonalLineBot
+        environment:
+            - "TZ=Asia/Tokyo"
+        ports:
+            - "8080:8080"

@@ -14,7 +14,7 @@ func main() {
 
 	router.NotFound(CustomNotFound)
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":80", router))
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {

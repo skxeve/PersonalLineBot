@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -14,7 +15,11 @@ func main() {
 
 	router.NotFound(CustomNotFound)
 
-	log.Fatal(http.ListenAndServe(":80", router))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), router))
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {

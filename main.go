@@ -12,6 +12,7 @@ func main() {
 	router := chi.NewRouter()
 	router.Get("/", Index)
 	router.Get("/number/{id}", Number)
+	router.Post("/webhook/{id}", LineWebHook)
 
 	router.NotFound(CustomNotFound)
 
@@ -29,6 +30,12 @@ func Index(w http.ResponseWriter, r *http.Request) {
 func Number(w http.ResponseWriter, r *http.Request) {
 	paramID := chi.URLParam(r, "id")
 	fmt.Fprintf(w, "Number parameter is %s", paramID)
+}
+
+func LineWebHook(w http.ResponseWriter, r *http.Request) {
+	accountId := chi.URLParam(r, "id")
+	//log.Infof("WebHook Received %s", accountId)
+	fmt.Fprintf(w, "WebHook Received %s", accountId)
 }
 
 func CustomNotFound(w http.ResponseWriter, r *http.Request) {

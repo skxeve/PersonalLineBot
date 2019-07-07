@@ -1,9 +1,10 @@
 package main
 
 import (
+	"./line/log"
 	"fmt"
 	"github.com/go-chi/chi"
-	"log"
+	//l "log"
 	"net/http"
 	"os"
 )
@@ -11,7 +12,6 @@ import (
 func main() {
 	router := chi.NewRouter()
 	router.Get("/", Index)
-	router.Get("/number/{id}", Number)
 	router.Post("/webhook/{id}", LineWebHook)
 
 	router.NotFound(CustomNotFound)
@@ -20,24 +20,26 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), router))
+	//log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), router))
+	//l.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), router))
+	http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello HttpRouter Index")
-}
-
-func Number(w http.ResponseWriter, r *http.Request) {
-	paramID := chi.URLParam(r, "id")
-	fmt.Fprintf(w, "Number parameter is %s", paramID)
+	logger := log.Logger{}
+	logger.Debugf("Index request.")
+	fmt.Fprintf(w, "Hello?")
 }
 
 func LineWebHook(w http.ResponseWriter, r *http.Request) {
 	accountId := chi.URLParam(r, "id")
-	log.Printf("WebHook Received %s", accountId)
+	logger := log.Logger{}
+	logger.Infof("WebHook Received %s", accountId)
 	fmt.Fprintf(w, "WebHook Received %s", accountId)
 }
 
 func CustomNotFound(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Custom 404 page.")
+	logger := log.Logger{}
+	logger.Warningf("NotFound request.")
+	fmt.Fprintf(w, "404")
 }

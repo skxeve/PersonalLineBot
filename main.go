@@ -34,7 +34,7 @@ func Number(w http.ResponseWriter, r *http.Request) {
 
 func LineWebHook(w http.ResponseWriter, r *http.Request) {
 	accountId := chi.URLParam(r, "id")
-	//log.Infof("WebHook Received %s", accountId)
+	log.Printf("WebHook Received %s", accountId)
 	fmt.Fprintf(w, "WebHook Received %s", accountId)
 }
 

@@ -7,11 +7,13 @@ import (
 	"github.com/go-chi/chi"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func main() {
 	router := chi.NewRouter()
 	router.Get("/", Index)
+	router.Get("/env/list", EnvList)
 	router.Post("/webhook/{id}", LineWebHook)
 
 	router.NotFound(CustomNotFound)
@@ -27,6 +29,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	c := h.GetHttpContext()
 	c.Logger.Debugf("Index request.")
 	fmt.Fprintf(w, "Hello?")
+}
+
+func EnvList(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, strings.Join(os.Environ(), "\n"))
 }
 
 func LineWebHook(w http.ResponseWriter, r *http.Request) {

@@ -1,7 +1,7 @@
 package http
 
 import (
-	l "../log"
+	l "github.com/skxeve/PersonalLineBot/line/log"
 )
 
 type HttpContext struct {

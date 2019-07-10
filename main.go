@@ -1,10 +1,10 @@
 package main
 
 import (
-	h "./line/http"
-	"./line/log"
 	"fmt"
 	"github.com/go-chi/chi"
+	h "github.com/skxeve/PersonalLineBot/line/http"
+	"github.com/skxeve/PersonalLineBot/line/log"
 	"net/http"
 	"os"
 	"strings"

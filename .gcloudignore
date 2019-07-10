@@ -23,3 +23,13 @@
 *.test
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# backup
+*.bak
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# markdown
+*.md

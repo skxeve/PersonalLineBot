@@ -26,7 +26,7 @@ func main() {
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	c := h.GetHttpContext()
+	c := h.GetHttpContext(r)
 	c.Logger.Debugf("Index request.")
 	fmt.Fprintf(w, "Hello?")
 }

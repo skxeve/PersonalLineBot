@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"github.com/go-chi/chi"
 	//h "github.com/skxeve/PersonalLineBot/line/http"
+	gcp_logging "cloud.google.com/go/logging"
+	"context"
 	"github.com/skxeve/PersonalLineBot/line/log"
-	"google.golang.org/appengine"
-	gaelog "google.golang.org/appengine/log"
+	l "log"
 	"net/http"
 	"os"
-	"reflect"
 	"strings"
 )
 
@@ -25,52 +25,45 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		router.ServeHTTP(w, r)
 	})
-	gae_instance := os.Getenv("GAE_INSTANCE")
-	is_gae_env := gae_instance != ""
-	if is_gae_env {
-		appengine.Main()
-	} else {
-		port := os.Getenv("PORT")
-		if port == "" {
-			port = "8080"
-		}
-		http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
+	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	//c := h.GetHttpContext(r)
-	//c.Logger.Debugf("Index request.")
-	ctx := appengine.NewContext(r)
-	logger := log.Logger{}
-	logger.Infof("r:%s ctx:%s", reflect.TypeOf(r), reflect.TypeOf(ctx))
-	gaelog.Debugf(ctx, "DebugPrint1")
-	gaelog.Infof(ctx, "InfoPrint2")
-	gaelog.Warningf(ctx, "WarnPrint3")
-	gaelog.Errorf(ctx, "ERrorPrint4")
 	fmt.Fprintf(w, "Hello?")
 }
 
 func Sample(w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.NewContext(r)
-	query := &gaelog.Query{
-		AppLogs:  true,
-		Versions: []string{"1"},
+	ctx := context.Background()
+	client, err := gcp_logging.NewClient(ctx, os.Getenv("GOOGLE_CLOUD_PROJECT"))
+	if err != nil {
+		// Handle error.
+		l.Fatal("logger client open error: %v", err)
 	}
-	for results := query.Run(ctx); ; {
-		record, err := results.Next()
-		if err == gaelog.Done {
-			gaelog.Infof(ctx, "Done processing results")
-			break
-		}
-		if err != nil {
-			gaelog.Errorf(ctx, "Failed to retrieve next log: %v", err)
-			break
-		}
-		gaelog.Infof(ctx, "Saw record %v", record)
-		fmt.Fprintf(w, "Saw record %v", record)
+	// Initialize a logger
+	lg := client.Logger("appengine.googleapis.com/applog")
+
+	// Add entry to log buffer
+	lg.Log(gcp_logging.Entry{
+		Payload:  "something happened!",
+		Severity: gcp_logging.Critical,
+	})
+	err = lg.LogSync(ctx, gcp_logging.Entry{
+		Payload:  "something sync happened!",
+		Severity: gcp_logging.Critical,
+	})
+	if err != nil {
+		l.Printf("logsync failed: %v", err)
 	}
-	gaelog.Debugf(ctx, "Done for-loop in Sample")
+	err = client.Close()
+	if err != nil {
+		// TODO: Handle error.
+		l.Fatal("logger client close error: %v", err)
+	}
+	l.Printf("[LOG] Sample GAE logging test normal log output.")
 	fmt.Fprintf(w, "Sample GAE logging with golang")
 }
 

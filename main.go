@@ -22,11 +22,20 @@ func main() {
 
 	router.NotFound(CustomNotFound)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		router.ServeHTTP(w, r)
+	})
+	gae_instance := os.Getenv("GAE_INSTANCE")
+	is_gae_env := gae_instance != ""
+	if is_gae_env {
+		appengine.Main()
+	} else {
+		port := os.Getenv("PORT")
+		if port == "" {
+			port = "8080"
+		}
+		http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 	}
-	http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +44,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	logger := log.Logger{}
 	logger.Infof("r:%s ctx:%s", reflect.TypeOf(r), reflect.TypeOf(ctx))
-	gaelog.Debugf(ctx, "DebugPrint")
+	gaelog.Debugf(ctx, "DebugPrint1")
+	gaelog.Infof(ctx, "InfoPrint2")
+	gaelog.Warningf(ctx, "WarnPrint3")
+	gaelog.Errorf(ctx, "ERrorPrint4")
 	fmt.Fprintf(w, "Hello?")
 }
 

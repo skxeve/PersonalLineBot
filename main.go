@@ -3,16 +3,20 @@ package main
 import (
 	"fmt"
 	"github.com/go-chi/chi"
-	h "github.com/skxeve/PersonalLineBot/line/http"
+	//h "github.com/skxeve/PersonalLineBot/line/http"
 	"github.com/skxeve/PersonalLineBot/line/log"
+	"google.golang.org/appengine"
+	gaelog "google.golang.org/appengine/log"
 	"net/http"
 	"os"
+	"reflect"
 	"strings"
 )
 
 func main() {
 	router := chi.NewRouter()
 	router.Get("/", Index)
+	router.Get("/sample", Sample)
 	router.Get("/env/list", EnvList)
 	router.Post("/webhook/{id}", LineWebHook)
 
@@ -26,9 +30,36 @@ func main() {
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	c := h.GetHttpContext(r)
-	c.Logger.Debugf("Index request.")
+	//c := h.GetHttpContext(r)
+	//c.Logger.Debugf("Index request.")
+	ctx := appengine.NewContext(r)
+	logger := log.Logger{}
+	logger.Infof("r:%s ctx:%s", reflect.TypeOf(r), reflect.TypeOf(ctx))
+	gaelog.Debugf(ctx, "DebugPrint")
 	fmt.Fprintf(w, "Hello?")
+}
+
+func Sample(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	query := &gaelog.Query{
+		AppLogs:  true,
+		Versions: []string{"1"},
+	}
+	for results := query.Run(ctx); ; {
+		record, err := results.Next()
+		if err == gaelog.Done {
+			gaelog.Infof(ctx, "Done processing results")
+			break
+		}
+		if err != nil {
+			gaelog.Errorf(ctx, "Failed to retrieve next log: %v", err)
+			break
+		}
+		gaelog.Infof(ctx, "Saw record %v", record)
+		fmt.Fprintf(w, "Saw record %v", record)
+	}
+	gaelog.Debugf(ctx, "Done for-loop in Sample")
+	fmt.Fprintf(w, "Sample GAE logging with golang")
 }
 
 func EnvList(w http.ResponseWriter, r *http.Request) {

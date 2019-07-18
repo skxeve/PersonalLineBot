@@ -63,8 +63,8 @@ func Sample(w http.ResponseWriter, r *http.Request) {
 		// TODO: Handle error.
 		l.Fatal("logger client close error: %v", err)
 	}
-	l.Printf("[LOG] Sample GAE logging test normal log output.")
-	fmt.Fprintf(w, "Sample GAE logging with golang")
+	l.Printf("[LOG] Sample GAE logging test normal log output: %v", r.Header)
+	fmt.Fprintf(w, "Sample GAE logging with golang %v", r.Header)
 }
 
 func EnvList(w http.ResponseWriter, r *http.Request) {

@@ -68,6 +68,8 @@ func Sample(w http.ResponseWriter, r *http.Request) {
 }
 
 func EnvList(w http.ResponseWriter, r *http.Request) {
+	logger := log.Logger{}
+	logger.Infof("envlist %s", strings.Join(os.Environ(), "<>"))
 	fmt.Fprintf(w, strings.Join(os.Environ(), "\n"))
 }
 

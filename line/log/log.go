@@ -1,9 +1,10 @@
 package log
 
 import (
+	"fmt"
 	"golang.org/x/net/context"
-	gaelog "google.golang.org/appengine/log"
 	"log"
+	"os"
 )
 
 type Logger struct {
@@ -14,37 +15,42 @@ type Logger struct {
 const LOGGER_ENV_GAE = 1
 
 func (l Logger) Debugf(format string, v ...interface{}) {
-	switch l.Env {
-	case LOGGER_ENV_GAE:
-		gaelog.Debugf(l.Context, format, v...)
-	default:
-		log.Printf("[DEBUG] "+format, v...)
-	}
+	l.logf(format, "DEBUG", v...)
 }
 
 func (l Logger) Infof(format string, v ...interface{}) {
-	switch l.Env {
-	case LOGGER_ENV_GAE:
-		gaelog.Infof(l.Context, format, v...)
-	default:
-		log.Printf("[INFO] "+format, v...)
-	}
+	l.logf(format, "INFO", v...)
 }
 
 func (l Logger) Warningf(format string, v ...interface{}) {
-	switch l.Env {
-	case LOGGER_ENV_GAE:
-		gaelog.Warningf(l.Context, format, v...)
-	default:
-		log.Printf("[WARNING] "+format, v...)
-	}
+	l.logf(format, "WARNING", v...)
 }
 
 func (l Logger) Errorf(format string, v ...interface{}) {
+	l.logf(format, "ERROR", v...)
+}
+
+func (l Logger) logf(format, level string, v ...interface{}) {
 	switch l.Env {
 	case LOGGER_ENV_GAE:
-		gaelog.Errorf(l.Context, format, v...)
+		l.gaeLogf(format, level, v...)
 	default:
-		log.Printf("[ERROR] "+format, v...)
+		l.defaultLogf(format, level, v...)
 	}
+}
+
+func (l Logger) defaultLogf(format, level string, v ...interface{}) {
+	log.Printf(
+		"[%s] %s",
+		level,
+		fmt.Sprintf(format, v...))
+}
+
+func (l Logger) gaeLogf(format, level string, v ...interface{}) {
+	log.Printf(
+		"[%s:%s] %s <%s>",
+		level,
+		os.Getenv("GAE_INSTANCE"),
+		fmt.Sprintf(format, v...),
+		os.Getenv("GAE_VERSION"))
 }

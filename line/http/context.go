@@ -2,25 +2,27 @@ package http
 
 import (
 	l "github.com/skxeve/PersonalLineBot/line/log"
-	"google.golang.org/appengine"
 	"net/http"
 	"os"
 )
 
 type HttpContext struct {
-	Logger *l.Logger
+	Logger  *l.Logger
+	Request *http.Request
 }
 
-func GetHttpContext(r *http.Request) *HttpContext {
+func NewContext(r *http.Request) *HttpContext {
 	gae_instance := os.Getenv("GAE_INSTANCE")
 	c := new(HttpContext)
+	c.Request = r
 	if gae_instance != "" {
 		c.Logger = &l.Logger{
-			Env:     1,
-			Context: appengine.NewContext(r),
+			Env: 1,
 		}
 	} else {
-		c.Logger = &l.Logger{}
+		c.Logger = &l.Logger{
+			Env: 0,
+		}
 	}
 	return c
 }

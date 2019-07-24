@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/go-chi/chi"
 	h "github.com/skxeve/PersonalLineBot/line/http"
-	"github.com/skxeve/PersonalLineBot/line/log"
 	l "log"
 	"net/http"
 	"os"
@@ -14,7 +13,6 @@ import (
 func main() {
 	router := chi.NewRouter()
 	router.Get("/", Index)
-	//router.Get("/sample", Sample)
 	router.Get("/env/list", EnvList)
 	router.Post("/webhook/{id}", LineWebHook)
 
@@ -42,13 +40,11 @@ func EnvList(w http.ResponseWriter, r *http.Request) {
 
 func LineWebHook(w http.ResponseWriter, r *http.Request) {
 	accountId := chi.URLParam(r, "id")
-	logger := log.Logger{}
-	logger.Infof("WebHook Received %s", accountId)
+	c := h.NewContext(r)
+	c.Logger.Infof("WebHook Received %s", accountId)
 	fmt.Fprintf(w, "WebHook Received %s", accountId)
 }
 
 func CustomNotFound(w http.ResponseWriter, r *http.Request) {
-	logger := log.Logger{}
-	logger.Warningf("NotFound request.")
 	fmt.Fprintf(w, "404")
 }

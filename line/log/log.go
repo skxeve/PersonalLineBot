@@ -2,14 +2,13 @@ package log
 
 import (
 	"fmt"
-	"golang.org/x/net/context"
 	"log"
 	"os"
 )
 
 type Logger struct {
 	Env     int
-	Context context.Context
+	Primary string
 }
 
 const LOGGER_ENV_GAE = 1
@@ -50,7 +49,7 @@ func (l Logger) gaeLogf(format, level string, v ...interface{}) {
 	log.Printf(
 		"[%s:%s] %s <%s>",
 		level,
-		os.Getenv("GAE_INSTANCE"),
+		l.Primary,
 		fmt.Sprintf(format, v...),
 		os.Getenv("GAE_VERSION"))
 }

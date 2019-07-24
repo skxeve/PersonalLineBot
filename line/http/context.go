@@ -17,7 +17,8 @@ func NewContext(r *http.Request) *HttpContext {
 	c.Request = r
 	if gae_instance != "" {
 		c.Logger = &l.Logger{
-			Env: 1,
+			Env:     1,
+			Primary: os.Getenv("GAE_INSTANCE")[:7],
 		}
 	} else {
 		c.Logger = &l.Logger{
